@@ -7,8 +7,25 @@ import polars as pl
 from config import Settings, Constants
 
 
-def read_pjm_data(start_year: int, end_year: int, settings: Settings, constants: Constants) -> pd.DataFrame:
+def read_pjm_data(
+        start_year: int,
+        end_year: int,
+        settings: Settings,
+        constants: Constants,
+        read_package: str = 'polars'
+) -> [pd.DataFrame, pl.DataFrame]:
+    match read_package:
+        case 'pandas':
+            out_df = read_with_pandas(start_year=start_year, end_year=end_year, settings=settings, constants=constants)
+        case 'polars':
+            out_df = read_with_polars(start_year=start_year, end_year=end_year, settings=settings, constants=constants)
+        case _:
+            raise Exception('Undefined!')
 
+    return out_df
+
+
+def read_with_pandas(start_year: int, end_year: int, settings: Settings, constants: Constants) -> pd.DataFrame:
     if start_year > end_year:
         raise Exception("start_year must be less than or equal to end_year")
 
@@ -65,10 +82,19 @@ def read_with_polars(start_year: int, end_year: int, settings: Settings, constan
         pl.col(constants.DATE_TIME_UTC).dt.offset_by("-5h").alias(constants.LOCAL_DATE_TIME)
     )
 
-    TODO: Here I am!
+    out_df = out_df.group_by(
+        by=[constants.LOCAL_DATE_TIME, constants.ZONE],
+        maintain_order=True
+    ).agg(pl.sum(constants.LOAD))
 
-    dummy = -32
+    out_df = out_df.pivot(
+        index=constants.LOCAL_DATE_TIME,
+        columns=constants.ZONE,
+        values=constants.LOAD,
+        sort_columns=True
+    )
 
+    return out_df
 
 
 def compute_daily_average_load(
@@ -85,4 +111,3 @@ def compute_daily_average_load(
         dummy = -43
 
     dummy = -32
-
