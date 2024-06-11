@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     GHCND_FOLDER: str
     OUT_FOLDER: str
 
+    WATT_TIME_USER: str
+    WATT_TIME_PASS: str
+
     class Config:
         case_sensitive = True
         env_file_encoding = "utf-8"
@@ -29,6 +32,7 @@ class Constants(BaseSettings):
     LOAD_AREA: str = 'load_area'
     LOAD: str = 'mw'
     IS_VERIFIED: str = 'is_verified'
+    LOCAL_DATE_TIME: str = 'local_date_time'
 
 
 class ModelSettings(BaseSettings):

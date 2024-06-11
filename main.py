@@ -6,7 +6,7 @@ import torch
 import pandas as pd
 
 from config import Settings, ModelSettings, Constants
-from source.utils import compute_daily_average_load
+from source.utils import compute_daily_average_load, read_pjm_data, read_with_polars
 
 
 def main(settings: Settings):
@@ -20,6 +20,9 @@ def main(settings: Settings):
     model_settings = ModelSettings()
 
     ##
+    df_pl = read_with_polars(start_year=2014, end_year=2015, constants=constants, settings=settings)
+    df_pjm = read_pjm_data(start_year=2014, end_year=2015, constants=constants, settings=settings)
+
 
     compute_daily_average_load(settings=settings, constants=constants, first_year=2012, last_year=2024)
 
