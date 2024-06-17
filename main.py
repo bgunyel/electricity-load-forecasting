@@ -6,7 +6,7 @@ import torch
 import pandas as pd
 
 from config import Settings, ModelSettings, Constants
-from source.utils import compute_daily_average_load, read_pjm_data, read_with_polars
+from source.utils import box_plots_for_zones
 
 
 def main(settings: Settings):
@@ -20,21 +20,7 @@ def main(settings: Settings):
     model_settings = ModelSettings()
 
     ##
-    start_year = 2012
-    end_year = 2024
-
-    time1 = time.time()
-    df_pandas = read_pjm_data(start_year=start_year, end_year=end_year, constants=constants, settings=settings, read_package='pandas')
-    time2 = time.time()
-    df_polars = read_pjm_data(start_year=start_year, end_year=end_year, constants=constants, settings=settings, read_package='polars')
-    time3 = time.time()
-
-    print(f'Pandas Time: {time2 - time1}')
-    print(f'Polars Time: {time3 - time2}')
-
-
-
-    # compute_daily_average_load(settings=settings, constants=constants, first_year=2012, last_year=2024)
+    box_plots_for_zones(settings=settings, constants=constants, first_year=2012, last_year=2024)
 
 
 
