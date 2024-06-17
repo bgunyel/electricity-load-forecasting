@@ -7,6 +7,8 @@ import pandas as pd
 
 from config import Settings, ModelSettings, Constants
 from source.utils import box_plots_for_zones
+from source.data_utils import read_ghcnd_stations
+from source.map_utils import visualize_stations, visualize_pjm_stations
 
 
 def main(settings: Settings):
@@ -20,7 +22,9 @@ def main(settings: Settings):
     model_settings = ModelSettings()
 
     ##
-    box_plots_for_zones(settings=settings, constants=constants, first_year=2012, last_year=2024)
+    # visualize_pjm_stations(settings=settings, constants=constants)
+
+
 
 
 

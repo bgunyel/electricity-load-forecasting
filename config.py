@@ -25,7 +25,7 @@ class Constants(BaseSettings):
 
     PJM_STATES: list = ['DE', 'IL', 'IN', 'KY', 'MD', 'MI', 'NJ', 'NC', 'OH', 'PA', 'TN', 'VA', 'WV', 'DC']
     PJM_ZONES: list = ['AE', 'AEP', 'AP', 'ATSI', 'BC', 'CE', 'CNCT', 'DAY', 'DEOK', 'DOM', 'DPL', 'DUQ', 'EKPC',
-                       'GPU', 'JC', 'ME', 'OVEC', 'PE', 'PEP', 'PL', 'PN', 'PS', 'RECO']
+                       'GPU', 'JC', 'ME', 'OVEC', 'PE', 'PEP', 'PL', 'PN', 'PS', 'RECO']  # RTO excluded from the list
     DATE_TIME_UTC: str = 'datetime_beginning_utc'
     DATE_TIME_EPT: str = 'datetime_beginning_ept'
     NERC_REGION: str = 'nerc_region'
@@ -36,6 +36,13 @@ class Constants(BaseSettings):
     IS_VERIFIED: str = 'is_verified'
     LOCAL_DATE_TIME: str = 'local_date_time'
     HOUR: str = 'hour'
+
+    ID: str = 'id'
+    STATE: str = 'state'
+    LAT: str = 'latitude'
+    LON: str = 'longitude'
+    ELEV: str = 'elevation'
+    STATE_ID: str = 'state_id'
 
 
 class ModelSettings(BaseSettings):
