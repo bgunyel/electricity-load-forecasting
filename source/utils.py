@@ -1,22 +1,17 @@
-import os
-import datetime
-
-import pandas as pd
-import polars as pl
 import matplotlib.pyplot as plt
+import polars as pl
 
-from config import Settings, Constants
+from config import settings, constants
 from source.data_utils import read_pjm_data
 
 
 def compute_daily_average_load(
-        settings: Settings,
-        constants: Constants,
         first_year: int = 2012,
-        last_year: int = 2024):
+        last_year: int = 2024
+):
     for idx, year in enumerate(range(first_year, last_year + 1)):
 
-        df = read_pjm_data(start_year=year, end_year=year, settings=settings, constants=constants)
+        df = read_pjm_data(start_year=year, end_year=year)
         df = df.with_columns(
             pl.col(constants.LOCAL_DATE_TIME).dt.hour().alias(constants.HOUR)
         )
@@ -37,10 +32,9 @@ def compute_daily_average_load(
 
 
 def box_plots_for_zones(
-        settings: Settings,
-        constants: Constants,
         first_year: int = 2012,
-        last_year: int = 2024):
+        last_year: int = 2024
+):
     load_dict = {z: dict() for z in constants.PJM_ZONES}
     load_dict['RTO'] = dict()
 

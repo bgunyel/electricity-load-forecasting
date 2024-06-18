@@ -1,13 +1,12 @@
 import os
-import datetime
 
 import pandas as pd
 import polars as pl
 
-from config import Settings, Constants
+from config import settings, constants
 
 
-def read_pjm_data(start_year: int, end_year: int, settings: Settings, constants: Constants) -> pl.DataFrame:
+def read_pjm_data(start_year: int, end_year: int) -> pl.DataFrame:
     if start_year > end_year:
         raise Exception("start_year must be less than or equal to end_year")
 
@@ -45,7 +44,7 @@ def read_pjm_data(start_year: int, end_year: int, settings: Settings, constants:
     return out_df
 
 
-def read_ghcnd_stations(country: str, settings: Settings, constants: Constants) -> pd.DataFrame:
+def read_ghcnd_stations(country: str) -> pd.DataFrame:
 
     # df = pd.read_table(constants.GHCND_STATIONS)
 

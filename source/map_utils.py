@@ -1,9 +1,8 @@
-import folium
 import branca
 import folium
 import pandas as pd
 
-from config import Settings, Constants
+from config import settings, constants
 from source.data_utils import read_ghcnd_stations
 
 
@@ -28,7 +27,7 @@ def draw_circles_on_map(
     return vis_map
 
 
-def visualize_stations(map_name: str, df: pd.DataFrame, settings: Settings, constants: Constants):
+def visualize_stations(map_name: str, df: pd.DataFrame):
     tiles = 'OpenStreetMap'
     map_width = 1536
     map_height = 864
@@ -53,13 +52,13 @@ def visualize_stations(map_name: str, df: pd.DataFrame, settings: Settings, cons
     print(f'Map saved to {out_map_path}')
 
 
-def visualize_country_stations(country_code: str, settings: Settings, constants: Constants):
-    df = read_ghcnd_stations(country=country_code, settings=settings, constants=constants)
-    visualize_stations(map_name=f'GHCND-{country_code}', df=df, constants=constants, settings=settings)
+def visualize_country_stations(country_code: str):
+    df = read_ghcnd_stations(country=country_code)
+    visualize_stations(map_name=f'GHCND-{country_code}', df=df)
 
 
-def visualize_pjm_stations(settings: Settings, constants: Constants):
+def visualize_pjm_stations():
     map_name = f'GHCND-PJM'
-    df = read_ghcnd_stations(country='US', settings=settings, constants=constants)
+    df = read_ghcnd_stations(country='US', )
     df = df.loc[df[constants.STATE].isin(constants.PJM_STATES), :]
-    visualize_stations(map_name=map_name, df=df, settings=settings, constants=constants)
+    visualize_stations(map_name=map_name, df=df)

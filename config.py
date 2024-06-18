@@ -47,3 +47,8 @@ class Constants(BaseSettings):
 
 class ModelSettings(BaseSettings):
     device: str = "cuda"
+
+
+settings = Settings()
+constants = Constants()
+model_settings = ModelSettings()
