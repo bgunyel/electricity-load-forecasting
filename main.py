@@ -7,8 +7,8 @@ import pandas as pd
 
 from config import settings, constants, model_settings
 from source.utils import box_plots_for_zones
-from source.data_utils import read_ghcnd_stations
-from source.map_utils import visualize_stations, visualize_pjm_stations
+from source.data_utils import read_pjm_data
+from source.map_utils import visualize_stations, visualize_pjm_stations, get_regions_of_ghcnd_stations_from_watt_time
 
 
 def main():
@@ -21,11 +21,7 @@ def main():
 
 
     ##
-    # visualize_pjm_stations(settings=settings, constants=constants)
-
-
-
-
+    get_regions_of_ghcnd_stations_from_watt_time()
 
 
 

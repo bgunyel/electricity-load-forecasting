@@ -1,14 +1,20 @@
+import datetime
 import os
 
 import pandas as pd
 import polars as pl
+import requests
+from requests.auth import HTTPBasicAuth
 
 from config import settings, constants
 
 
-def read_pjm_data(start_year: int, end_year: int) -> pl.DataFrame:
+def read_pjm_data(start_year: int, end_year: int, aggregation_level: str) -> pl.DataFrame:
     if start_year > end_year:
         raise Exception("start_year must be less than or equal to end_year")
+
+    if aggregation_level not in constants.AGGREGATION_MAP.keys():
+        raise Exception(f'Aggregation level should be one of {constants.AGGREGATION_MAP.keys()}')
 
     file_path = os.path.join(settings.PJM_FOLDER, f'pjm-{start_year}.csv')
     out_df = pl.read_csv(source=file_path)
@@ -30,13 +36,13 @@ def read_pjm_data(start_year: int, end_year: int) -> pl.DataFrame:
     )
 
     out_df = out_df.group_by(
-        by=[constants.LOCAL_DATE_TIME, constants.ZONE],
+        by=[constants.LOCAL_DATE_TIME, aggregation_level],
         maintain_order=True
     ).agg(pl.sum(constants.LOAD))
 
     out_df = out_df.pivot(
         index=constants.LOCAL_DATE_TIME,
-        columns=constants.ZONE,
+        columns=aggregation_level,
         values=constants.LOAD,
         sort_columns=True
     )
@@ -45,7 +51,6 @@ def read_pjm_data(start_year: int, end_year: int) -> pl.DataFrame:
 
 
 def read_ghcnd_stations(country: str) -> pd.DataFrame:
-
     # df = pd.read_table(constants.GHCND_STATIONS)
 
     f = open(os.path.join(settings.GHCND_FOLDER, 'ghcnd-stations.txt'), "r")
@@ -56,3 +61,11 @@ def read_ghcnd_stations(country: str) -> pd.DataFrame:
     df = pd.DataFrame(q, columns=[constants.ID, constants.STATE, constants.LAT, constants.LON, constants.ELEV])
 
     return df
+
+
+def get_watt_time_token() -> tuple[str, datetime.datetime]:
+    login_url = 'https://api.watttime.org/login'
+    valid_until = datetime.datetime.now() + datetime.timedelta(minutes=30)
+    rsp = requests.get(login_url, auth=HTTPBasicAuth(settings.WATT_TIME_USER, settings.WATT_TIME_PASS))
+    token = rsp.json()['token']
+    return token, valid_until
