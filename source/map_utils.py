@@ -34,12 +34,12 @@ def draw_circles_on_map(
     return vis_map
 
 
-def visualize_stations(map_name: str, df: pd.DataFrame):
+def visualize_stations(map_name: str, df: pd.DataFrame, pop_up_text_column: str, color_coding_column: str):
     tiles = 'OpenStreetMap'
     map_width = 1536
     map_height = 864
 
-    df[constants.STATE_ID] = df[constants.STATE].factorize()[0]
+    df['color_coding'] = df[color_coding_column].factorize()[0]
 
     point_coordinates = [tuple(x) for x in df[[constants.LAT, constants.LON]].to_numpy()]
 
@@ -52,8 +52,8 @@ def visualize_stations(map_name: str, df: pd.DataFrame):
 
     vis_map = draw_circles_on_map(vis_map=vis_map,
                                   coordinates=point_coordinates,
-                                  circle_strengths=df[constants.STATE_ID].tolist(),
-                                  pop_up_text=df[constants.ID].tolist())
+                                  circle_strengths=df['color_coding'].tolist(),
+                                  pop_up_text=df[pop_up_text_column].tolist())
     out_map_path = f'{settings.OUT_FOLDER}{map_name}.html'
     vis_map.save(outfile=out_map_path)
     print(f'Map saved to {out_map_path}')
@@ -66,9 +66,25 @@ def visualize_country_stations(country_code: str):
 
 def visualize_pjm_stations():
     map_name = f'GHCND-PJM'
-    df = read_ghcnd_stations(country='US')
-    df = df.loc[df[constants.STATE].isin(constants.PJM_STATES), :]
-    visualize_stations(map_name=map_name, df=df)
+    # df = read_ghcnd_stations(country='US')
+    # df = df.loc[df[constants.STATE].isin(constants.PJM_STATES), :]
+
+    df = pd.DataFrame()
+    for state in constants.PJM_STATES:
+        df_state = pd.read_csv(
+            filepath_or_buffer=os.path.join(settings.PJM_GHCND_FOLDER, f'pjm_ghcnd_{state}.csv'),
+            index_col=0
+        )
+        df = pd.concat([df, df_state], ignore_index=True)
+
+    df = df.loc[df[constants.REGION].str.contains('PJM_')]
+
+    visualize_stations(
+        map_name=map_name,
+        df=df,
+        pop_up_text_column=constants.REGION,
+        color_coding_column=constants.REGION
+    )
 
 
 def get_region_from_location_watt_time(latitude: float, longitude: float, token: str):
@@ -88,12 +104,10 @@ def get_region_from_location_watt_time(latitude: float, longitude: float, token:
     return out
 
 
-def get_regions_of_ghcnd_stations_from_watt_time():
-    df = read_ghcnd_stations(country='US')
-    df = df.loc[df[constants.STATE].isin(constants.PJM_STATES), :]
+def get_watt_time_regions_of_ghcnd_stations(df: pd.DataFrame):
     df = df.reset_index()
-
-    regions = ['NONE'] * len(df)
+    num_items = len(df)
+    regions = ['NONE'] * num_items
 
     token, valid_until = get_watt_time_token()
     print(f'TOKEN VALID UNTIL: {valid_until} -- NOW: {datetime.datetime.now()}')
@@ -110,16 +124,22 @@ def get_regions_of_ghcnd_stations_from_watt_time():
                                                              longitude=row[constants.LON],
                                                              token=token)
         except requests.HTTPError as e:
-            token, valid_until = get_watt_time_token()
-            print(f'TOKEN VALID UNTIL: {valid_until} -- NOW: {datetime.datetime.now()}')
-            region_dict = get_region_from_location_watt_time(latitude=row[constants.LAT],
-                                                             longitude=row[constants.LON],
-                                                             token=token)
+            if e.response.status_code == 401:
+                token, valid_until = get_watt_time_token()
+                print(f'TOKEN VALID UNTIL: {valid_until} -- NOW: {datetime.datetime.now()}')
+                region_dict = get_region_from_location_watt_time(latitude=row[constants.LAT],
+                                                                 longitude=row[constants.LON],
+                                                                 token=token)
+            else:
+                continue
 
         regions[idx] = region_dict[constants.REGION]
         current_time = datetime.datetime.now()
         print(
-            f'{idx}: ({row[constants.LAT]:.4f}, {row[constants.LON]:.4f}) --> {region_dict[constants.REGION]}, {current_time - previous_time}')
+            f'{idx+1}/{num_items}: {row[constants.ID]} {row[constants.STATE]} '
+            f'({row[constants.LAT]:.4f}, {row[constants.LON]:.4f}) '
+            f'--> {region_dict[constants.REGION]}, {current_time - previous_time}'
+        )
 
         if current_time - previous_time < datetime.timedelta(milliseconds=500):
             time.sleep(0.15)
@@ -127,6 +147,13 @@ def get_regions_of_ghcnd_stations_from_watt_time():
         previous_time = current_time
 
     df[constants.REGION] = regions
-    df.to_csv(os.path.join(settings.OUT_FOLDER, 'ghcnd_pjm_zones.csv'))
+    return df
 
-    dummy = -32
+
+def get_pjm_regions_for_weather_stations():
+    df_all = read_ghcnd_stations(country='US')
+
+    for state in ['VA', 'WV', 'DC']:
+        df = df_all.loc[df_all[constants.STATE] == state, :]
+        df = get_watt_time_regions_of_ghcnd_stations(df=df)
+        df.to_csv(os.path.join(settings.OUT_FOLDER, f'pjm_ghcnd_{state}.csv'))

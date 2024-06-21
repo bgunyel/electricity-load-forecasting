@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     EPIAS_FOLDER: str
     PJM_FOLDER: str
     GHCND_FOLDER: str
+    PJM_GHCND_FOLDER: str
     OUT_FOLDER: str
 
     WATT_TIME_USER: str
@@ -22,16 +23,15 @@ class Settings(BaseSettings):
 
 
 class Constants(BaseSettings):
-
     PJM_STATES: list = ['DE', 'IL', 'IN', 'KY', 'MD', 'MI', 'NJ', 'NC', 'OH', 'PA', 'TN', 'VA', 'WV', 'DC']
     PJM_ZONES: list = ['AE', 'AEP', 'AP', 'ATSI', 'BC', 'CE', 'CNCT', 'DAY', 'DEOK', 'DOM', 'DPL', 'DUQ', 'EKPC',
                        'GPU', 'JC', 'ME', 'OVEC', 'PE', 'PEP', 'PL', 'PN', 'PS', 'RECO']  # RTO excluded from the list
-    PJM_LOAD_AREAS: list = ['AE',  'AECO', 'AEP', 'AEPAPT', 'AEPIMP', 'AEPKPT', 'AEPOPT', 'AP', 'BC', 'CE',
-                            'DAY', 'DEOK', 'DOM', 'DPL', 'DPLCO', 'DUQ', 'EASTON', 'EKPC', 'JC',  'ME', 'OE', 'OVEC',
+    PJM_LOAD_AREAS: list = ['AE', 'AECO', 'AEP', 'AEPAPT', 'AEPIMP', 'AEPKPT', 'AEPOPT', 'AP', 'BC', 'CE',
+                            'DAY', 'DEOK', 'DOM', 'DPL', 'DPLCO', 'DUQ', 'EASTON', 'EKPC', 'JC', 'ME', 'OE', 'OVEC',
                             'PAPWR', 'PE', 'PEP', 'PEPCO', 'PLCO', 'PN', 'PS', 'RECO', 'RTO', 'SMECO', 'UGI', 'VMEU']
 
-    MKT_REGIONS: list = ['MIDATL', 'RTO', 'SOUTH', 'WEST']
-    NERC_REGIONS: list = ['RFC', 'RTO', 'SERC']
+    MKT_REGIONS: list = ['MIDATL', 'SOUTH', 'WEST']  # RTO excluded from the list
+    NERC_REGIONS: list = ['RFC', 'SERC']  # RTO excluded from the list
 
     NERC_REGION: str = 'nerc_region'
     MKT_REGION: str = 'mkt_region'

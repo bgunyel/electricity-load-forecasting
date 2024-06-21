@@ -4,11 +4,13 @@ import datetime
 
 import torch
 import pandas as pd
+import polars as pl
 
 from config import settings, constants, model_settings
 from source.utils import box_plots_for_zones
 from source.data_utils import read_pjm_data
-from source.map_utils import visualize_stations, visualize_pjm_stations, get_regions_of_ghcnd_stations_from_watt_time
+from source.map_utils import visualize_stations, visualize_pjm_stations, get_pjm_regions_for_weather_stations
+from source.data import PJMDataset
 
 
 def main():
@@ -18,19 +20,15 @@ def main():
     else:
         raise RuntimeError('No GPU found!')
 
-
-
     ##
-    get_regions_of_ghcnd_stations_from_watt_time()
-
-
+    # pjm_data_set = PJMDataset(first_year=2012, last_year=2024, B=24, T=4)
+    visualize_pjm_stations()
 
 
     dummy = -32
 
 
 if __name__ == '__main__':
-
     print(f'{settings.APPLICATION_NAME} started at {datetime.datetime.now()}')
     time1 = time.time()
     main()
