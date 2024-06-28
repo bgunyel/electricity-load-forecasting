@@ -21,8 +21,12 @@ def main():
         raise RuntimeError('No GPU found!')
 
     ##
-    # pjm_data_set = PJMDataset(first_year=2012, last_year=2024, B=24, T=4)
-    visualize_pjm_stations()
+    pjm_data_set = PJMDataset(first_year=2012, last_year=2024, B=20, T=4)
+
+    for i in range(10):
+        x, y = pjm_data_set.next_batch()
+        print(f'{x.index.min()} - {x.index.max()} --- {y.index.min()} - {y.index.max()}')
+        dummy = -32
 
 
     dummy = -32
