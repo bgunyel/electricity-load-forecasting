@@ -13,6 +13,7 @@ class PJMDataset:
     def __init__(self, B: int, T: int, first_year: int, last_year: int):
         self.B = B
         self.T = T
+        self.C = 24
 
         self.first_year = first_year
         self.last_year = last_year
@@ -39,15 +40,16 @@ class PJMDataset:
         new_indices = np.random.randint(low=0, high=len(available_zones), size=self.B - len(available_zones))
         available_zones += [available_zones[t] for t in new_indices]
 
-        a = x[available_zones]
-        b = a.to_numpy()
+        temp_x = x[available_zones].to_numpy().transpose().reshape(self.B, self.T, self.C)
+        temp_y = y[available_zones].to_numpy().transpose().reshape(self.B, 1, self.C)
 
-        x = x[available_zones]
-        y = y[available_zones]
+        x = torch.tensor(data=temp_x)
+        y = torch.tensor(data=temp_y)
+        y_date = self.y_date_time_open.date()
 
         self.x_date_time_open += datetime.timedelta(days=1)
         self.x_date_time_close += datetime.timedelta(days=1)
         self.y_date_time_open += datetime.timedelta(days=1)
         self.y_date_time_close += datetime.timedelta(days=1)
 
-        return x, y
+        return x, y, y_date

@@ -24,8 +24,7 @@ def main():
     pjm_data_set = PJMDataset(first_year=2012, last_year=2024, B=20, T=4)
 
     for i in range(10):
-        x, y = pjm_data_set.next_batch()
-        print(f'{x.index.min()} - {x.index.max()} --- {y.index.min()} - {y.index.max()}')
+        x, y, y_date = pjm_data_set.next_batch()
         dummy = -32
 
 
