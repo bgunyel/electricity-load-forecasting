@@ -6,11 +6,7 @@ import torch
 import pandas as pd
 import polars as pl
 
-from config import settings, constants, model_settings
-from source.utils import box_plots_for_zones
-from source.data_utils import read_pjm_data
-from source.map_utils import visualize_stations, visualize_pjm_stations, get_pjm_regions_for_weather_stations
-from source.data import PJMDataset
+from config import settings, model_settings, pjm, entsoe
 
 
 def main():
@@ -22,16 +18,6 @@ def main():
 
     ##
 
-    first_year = 2017
-    last_year = 2018
-
-    df = read_pjm_data(start_year=first_year, end_year=last_year, aggregation_level=constants.ZONE)
-
-    pjm_data_set = PJMDataset(first_year=2018, last_year=2018, B=20, T=4)
-
-    for i in range(10):
-        x, y, y_date = pjm_data_set.next_batch()
-        dummy = -32
 
 
     dummy = -32
