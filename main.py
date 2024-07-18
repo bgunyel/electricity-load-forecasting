@@ -21,7 +21,13 @@ def main():
         raise RuntimeError('No GPU found!')
 
     ##
-    pjm_data_set = PJMDataset(first_year=2012, last_year=2024, B=20, T=4)
+
+    first_year = 2017
+    last_year = 2018
+
+    df = read_pjm_data(start_year=first_year, end_year=last_year, aggregation_level=constants.ZONE)
+
+    pjm_data_set = PJMDataset(first_year=2018, last_year=2018, B=20, T=4)
 
     for i in range(10):
         x, y, y_date = pjm_data_set.next_batch()
