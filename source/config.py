@@ -8,6 +8,12 @@ ENV_FILE_DIR = os.path.abspath(os.path.join(FILE_DIR, os.pardir))
 class Settings(BaseSettings):
     APPLICATION_NAME: str = "Electricity Load Forecasting"
 
+    BACKEND_PORT: int = 8080
+    HOST: str = "0.0.0.0"
+    ENABLE_RELOAD: bool = False
+
+    UI_PORT: int = 8501
+
     EPIAS_FOLDER: str
     PJM_FOLDER: str
     GHCND_FOLDER: str
