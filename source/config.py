@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     WATT_TIME_USER: str
     WATT_TIME_PASS: str
 
+    ENTSOE_TOKEN: str
+
     class Config:
         case_sensitive = True
         env_file_encoding = "utf-8"
@@ -30,7 +32,7 @@ class Settings(BaseSettings):
 
 
 class Constants(BaseSettings):
-    DATE_TIME_UTC: str = 'datetime_beginning_utc'
+    DATE_TIME_UTC: str = 'datetime_utc'
 
     LOAD: str = 'load'
     IS_VERIFIED: str = 'is_verified'
@@ -54,6 +56,7 @@ class PJM(Constants):
 
     LOAD: str = 'mw'
     DATE_TIME_EPT: str = 'datetime_beginning_ept'
+    DATE_TIME_UTC: str = 'datetime_beginning_utc'
 
     STATES: list = ['DE', 'IL', 'IN', 'KY', 'MD', 'MI', 'NJ', 'NC', 'OH', 'PA', 'TN', 'VA', 'WV', 'DC']
     ZONES: list = ['AE', 'AEP', 'AP', 'ATSI', 'BC', 'CE', 'CNCT', 'DAY', 'DEOK', 'DOM', 'DPL', 'DUQ', 'EKPC',
