@@ -21,14 +21,29 @@ class ENTSOEClient:
             'DE': '10Y1001A1001A83F',  # Germany
             'DK': '10Y1001A1001A65H',  # Denmark
             'ES': '10YES-REE------0',  # Spain
+            'FI': '10YFI-1--------U',  # Finland
             'FR': '10YFR-RTE------C',  # France
             'GE': '10Y1001A1001B012',  # Georgia
             'GR': '10YGR-HTSO-----Y',  # Greece
             'HR': '10YHR-HEP------M',  # Croatia
             'HU': '10YHU-MAVIR----U',  # Hungary
+            'IE': '10YIE-1001A00010',  # Ireland
+            'IT': '10YIT-GRTN-----B',  # Italy
+            'LT': '10YLT-1001A0008Q',  # Lithuania
+            'LU': '10YLU-CEGEDEL-NQ',  # Luxembourg
+            'LV': '10YLV-1001A00074',  # Latvia
             'MD': '10Y1001A1001A990',  # Moldova
             'ME': '10YCS-CG-TSO---S',  # Montenegro
+            'MK': '10YMK-MEPSO----8',  # North Macedonia
+            'NL': '10YNL----------L',  # Netherlands
+            'NO': '10YNO-0--------C',  # Norway
+            'PL': '10YPL-AREA-----S',  # Poland
+            'PT': '10YPT-REN------W',  # Portugal
+            'RO': '10YRO-TEL------P',  # Romania
             'RS': '10YCS-SERBIATSOV',  # Serbia
+            'SE': '10YSE-1--------K',  # Sweden
+            'SI': '10YSI-ELES-----O',  # Slovenia
+            'SK': '10YSK-SEPS-----K',  # Slovakia
             'XK': '10Y1001C--00100H',  # Kosovo
         }
 
