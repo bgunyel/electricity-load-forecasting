@@ -14,6 +14,8 @@ class Settings(BaseSettings):
 
     UI_PORT: int = 8501
 
+    DATABASE_URL: str
+
     EPIAS_FOLDER: str
     PJM_FOLDER: str
     GHCND_FOLDER: str

@@ -7,7 +7,8 @@ import pandas as pd
 import polars as pl
 
 from config import settings, model_settings, pjm, entsoe
-from source.backend.data_clients.entsoe import ENTSOEClient
+from source.backend.api import *
+from source.backend.service.data_clients.entsoe import ENTSOEClient
 
 
 def main():
@@ -19,6 +20,23 @@ def main():
 
     ##
 
+    geographical_unit = {
+        'code': GeographicalUnitCode.TURKIYE,
+        'name': 'Turkiye',
+        'type': GeographicalUnitType.COUNTRY,
+        'regulator': RegulatorType.EPIAS,
+        'is_active': True,
+        'created_by_id': 1,
+        'updated_by_id': 1,
+        'created_at': datetime.datetime.now(datetime.timezone.utc),
+        'updated_at': datetime.datetime.now(datetime.timezone.utc),
+    }
+
+    add_new_geographical_unit(geographical_unit=geographical_unit)
+
+
+
+    ##
     entsoe_client = ENTSOEClient(token=settings.ENTSOE_TOKEN)
 
     entity_code = 'AT'
