@@ -17,4 +17,5 @@ class GeographicalUnitCode(enum.Enum):
     AUSTRIA = 'AT'
     BELGIUM = 'BE'
     GERMANY = 'DE'
+    SWITZERLAND = 'CH'
     TURKIYE = 'TR'

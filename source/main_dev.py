@@ -19,32 +19,29 @@ def main():
         raise RuntimeError('No GPU found!')
 
     ##
-
-    geographical_unit = {
-        'code': GeographicalUnitCode.TURKIYE,
-        'name': 'Turkiye',
-        'type': GeographicalUnitType.COUNTRY,
-        'regulator': RegulatorType.EPIAS,
-        'is_active': True,
-        'created_by_id': 1,
-        'updated_by_id': 1,
-        'created_at': datetime.datetime.now(datetime.timezone.utc),
-        'updated_at': datetime.datetime.now(datetime.timezone.utc),
-    }
-
-    add_new_geographical_unit(geographical_unit=geographical_unit)
-
-
+    update_geographical_unit(
+        code=GeographicalUnitCode.TURKIYE,
+        last_valid_data_ending=datetime.datetime(year=2015, month=1, day=1, hour=0, minute=0,
+                                                 tzinfo=datetime.timezone.utc)
+    )
 
     ##
     entsoe_client = ENTSOEClient(token=settings.ENTSOE_TOKEN)
 
     entity_code = 'AT'
-    start_datetime = datetime.datetime(year=2024, month=7, day=19, hour=0, minute=0, tzinfo=datetime.timezone.utc)
-    end_datetime = datetime.datetime(year=2024, month=7, day=20, hour=0, minute=0, tzinfo=datetime.timezone.utc)
+    start_datetime = datetime.datetime(year=2015, month=1, day=1, hour=0, minute=0, tzinfo=datetime.timezone.utc)
+    end_datetime = datetime.datetime(year=2016, month=1, day=1, hour=0, minute=0, tzinfo=datetime.timezone.utc)
+    # end_datetime = datetime.datetime.now(datetime.timezone.utc).replace(minute=0, second=0, microsecond=0)
 
-    entsoe_client.get_load_data(entity_code=entity_code, start_datetime=start_datetime, end_datetime=end_datetime)
-
+    t1 = time.time()
+    data_list = entsoe_client.get_load_data(entity_code=entity_code,
+                                            start_datetime=start_datetime,
+                                            end_datetime=end_datetime)
+    t2 = time.time()
+    total_time = t2 - t1
+    print(f'Total time: {total_time}')
+    print(f'Time per element: {total_time / len(data_list)}')
+    print(f'Number of elements: {len(data_list)}')
     dummy = -32
 
 

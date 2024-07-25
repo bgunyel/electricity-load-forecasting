@@ -53,7 +53,11 @@ class ENTSOEClient:
             'PT60M': datetime.timedelta(hours=1),
         }
 
-    def get_load_data(self, entity_code: str, start_datetime: datetime.datetime, end_datetime: datetime.datetime):
+    def get_load_data(
+            self,
+            entity_code: str,
+            start_datetime: datetime.datetime,
+            end_datetime: datetime.datetime) -> list[dict]:
 
         format_str = "%Y%m%d%H%M"
 
@@ -69,7 +73,7 @@ class ENTSOEClient:
         xml_text = response.text.encode('ascii')
         xml_doc = objectify.fromstring(xml_text)
 
-        out_dict = {}
+        out_list = []
 
         for ts in xml_doc.TimeSeries:
             for period in ts.Period:
@@ -86,7 +90,12 @@ class ENTSOEClient:
                     point_start = period_start + time_resolution * (position - 1)
                     point_end = period_start + time_resolution * position
                     point_value = int(point.quantity.text)
-                    dummy = -43
+                    out_list.append(
+                        {
+                            'start_datetime': point_start,
+                            'end_datetime': point_end,
+                            'value': point_value,
+                        }
+                    )
 
-
-        dummy = -32
+        return out_list
