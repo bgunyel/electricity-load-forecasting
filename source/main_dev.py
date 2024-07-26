@@ -19,29 +19,18 @@ def main():
         raise RuntimeError('No GPU found!')
 
     ##
-    update_geographical_unit(
-        code=GeographicalUnitCode.TURKIYE,
-        last_valid_data_ending=datetime.datetime(year=2015, month=1, day=1, hour=0, minute=0,
-                                                 tzinfo=datetime.timezone.utc)
-    )
 
     ##
-    entsoe_client = ENTSOEClient(token=settings.ENTSOE_TOKEN)
 
-    entity_code = 'AT'
     start_datetime = datetime.datetime(year=2015, month=1, day=1, hour=0, minute=0, tzinfo=datetime.timezone.utc)
-    end_datetime = datetime.datetime(year=2016, month=1, day=1, hour=0, minute=0, tzinfo=datetime.timezone.utc)
+    end_datetime = datetime.datetime(year=2015, month=1, day=2, hour=0, minute=0, tzinfo=datetime.timezone.utc)
     # end_datetime = datetime.datetime.now(datetime.timezone.utc).replace(minute=0, second=0, microsecond=0)
 
-    t1 = time.time()
-    data_list = entsoe_client.get_load_data(entity_code=entity_code,
-                                            start_datetime=start_datetime,
-                                            end_datetime=end_datetime)
-    t2 = time.time()
-    total_time = t2 - t1
-    print(f'Total time: {total_time}')
-    print(f'Time per element: {total_time / len(data_list)}')
-    print(f'Number of elements: {len(data_list)}')
+    fetch_and_add_new_load_data(entity_code=GeographicalUnitCode.AUSTRIA,
+                                regulator=RegulatorType.ENTSOE,
+                                start_datetime=start_datetime,
+                                end_datetime=end_datetime)
+
     dummy = -32
 
 
