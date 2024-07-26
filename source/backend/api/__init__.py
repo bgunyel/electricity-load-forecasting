@@ -5,6 +5,7 @@ from backend.service.utils.get_db_session import get_db_session
 from backend.service.db.repositories.user_repository import UserRepository
 from backend.service.db.repositories.geographical_unit_repository import GeographicalUnitRepository
 from backend.service.db.repositories.load_data_repository import LoadDataRepository
+from backend.service.db.entities.geographical_unit_entities import GeographicalUnitEntity
 from backend.service.db.models.enums import GeographicalUnitCode, GeographicalUnitType, RegulatorType
 
 from backend.service.data_clients.entsoe import ENTSOEClient
@@ -86,21 +87,29 @@ def add_new_load_data(
                              last_valid_data_ending=last_valid_data_ending)
 
 
+def get_geographical_unit(entity_code: GeographicalUnitCode, regulator: RegulatorType) -> GeographicalUnitEntity:
+    session = get_db_session(database_url=settings.DATABASE_URL)
+    geographical_unit_repository = GeographicalUnitRepository(session=session)
+    geographical_unit = None
+
+    try:
+        geographical_unit = geographical_unit_repository.get_geographical_unit_from_code(code=entity_code,
+                                                                                         regulator=regulator)
+    except RuntimeError as e:
+        print(e)
+    else:
+        session.close()
+
+    return geographical_unit
+
+
 def fetch_and_add_new_load_data(
         entity_code: GeographicalUnitCode,
         regulator: RegulatorType,
         start_datetime: datetime.datetime,
         end_datetime: datetime.datetime
 ):
-    session = get_db_session(database_url=settings.DATABASE_URL)
-    geographical_unit_repository = GeographicalUnitRepository(session=session)
-    geographical_unit_id = -1
-    try:
-        geographical_unit_id = geographical_unit_repository.get_id_from_code(code=entity_code, regulator=regulator)
-    except RuntimeError as e:
-        print(e)
-    else:
-        session.close()
+    geographical_unit = get_geographical_unit(entity_code=entity_code, regulator=regulator)
 
     match regulator:
         case RegulatorType.ENTSOE:
@@ -120,7 +129,7 @@ def fetch_and_add_new_load_data(
                 'updated_by_id': 1,
                 'created_at': datetime.datetime.now(datetime.timezone.utc),
                 'updated_at': datetime.datetime.now(datetime.timezone.utc),
-                'geographical_unit_id': geographical_unit_id,
+                'geographical_unit_id': geographical_unit.id,
             }
         ) for x in data_list
     ]
@@ -128,7 +137,38 @@ def fetch_and_add_new_load_data(
     add_new_load_data(load_data=data_list, geographical_unit_code=entity_code, regulator=regulator)
 
 
-# API Exposure
+def sync_load_data(entity_code: GeographicalUnitCode, regulator: RegulatorType):
+    MAX_QUERY_DAYS = 180
+    ABSOLUTE_BEGINNING = datetime.datetime(year=2015, month=1, day=1, hour=0, minute=0, tzinfo=datetime.timezone.utc)
+
+    geographical_unit = get_geographical_unit(entity_code=entity_code, regulator=regulator)
+
+    if geographical_unit.last_valid_data_ending is None:
+        geographical_unit.last_valid_data_ending = ABSOLUTE_BEGINNING
+
+    current_datetime = datetime.datetime.now(datetime.timezone.utc).replace(minute=0, second=0, microsecond=0)
+
+    while current_datetime - geographical_unit.last_valid_data_ending > datetime.timedelta(days=MAX_QUERY_DAYS):
+        start_datetime = geographical_unit.last_valid_data_ending
+        end_datetime = start_datetime + datetime.timedelta(days=MAX_QUERY_DAYS)
+
+        fetch_and_add_new_load_data(entity_code=entity_code,
+                                    regulator=regulator,
+                                    start_datetime=start_datetime,
+                                    end_datetime=end_datetime)
+        geographical_unit = get_geographical_unit(entity_code=entity_code, regulator=regulator)
+    else:
+        start_datetime = geographical_unit.last_valid_data_ending
+        end_datetime = current_datetime
+        fetch_and_add_new_load_data(entity_code=entity_code,
+                                    regulator=regulator,
+                                    start_datetime=start_datetime,
+                                    end_datetime=end_datetime)
+
+
+################
+# API Exposure #
+################
 __all__ = [
     'GeographicalUnitCode',
     'GeographicalUnitType',
@@ -138,4 +178,5 @@ __all__ = [
     'add_new_load_data',
     'fetch_and_add_new_load_data',
     'update_geographical_unit',
+    'sync_load_data'
 ]

@@ -22,14 +22,8 @@ def main():
 
     ##
 
-    start_datetime = datetime.datetime(year=2015, month=1, day=1, hour=0, minute=0, tzinfo=datetime.timezone.utc)
-    end_datetime = datetime.datetime(year=2015, month=1, day=2, hour=0, minute=0, tzinfo=datetime.timezone.utc)
-    # end_datetime = datetime.datetime.now(datetime.timezone.utc).replace(minute=0, second=0, microsecond=0)
-
-    fetch_and_add_new_load_data(entity_code=GeographicalUnitCode.AUSTRIA,
-                                regulator=RegulatorType.ENTSOE,
-                                start_datetime=start_datetime,
-                                end_datetime=end_datetime)
+    sync_load_data(entity_code=GeographicalUnitCode.BELGIUM,
+                   regulator=RegulatorType.ENTSOE)
 
     dummy = -32
 

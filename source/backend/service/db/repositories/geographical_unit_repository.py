@@ -13,6 +13,18 @@ class GeographicalUnitRepository:
     def __init__(self, session: Session):
         self.session = session
 
+    def get_geographical_unit_by_id(self, geographical_unit_id: int) -> GeographicalUnitEntity:
+        query_result = (
+            self.session.query(GeographicalUnit)
+            .where(
+                GeographicalUnit.id.__eq__(geographical_unit_id)
+            )
+        )
+        geographical_units = [geographical_unit_model_to_entity(instance=x) for x in query_result]
+        if len(geographical_units) != 1:
+            raise RuntimeError(f'Expected 1 geographical unit but found {len(geographical_units)}')
+        return geographical_units[0]
+
     def add_new_geographical_unit(self, geographical_unit: dict):
         # TODO: Safety checks shall be implemented
         self.__insert_geographical_unit(geographical_unit=geographical_unit)
@@ -39,7 +51,12 @@ class GeographicalUnitRepository:
         )
         self.session.commit()
 
-    def get_id_from_code(self, code: GeographicalUnitCode, regulator: RegulatorType) -> int:
+    def get_geographical_unit_from_code(
+            self,
+            code: GeographicalUnitCode,
+            regulator: RegulatorType
+    ) -> GeographicalUnitEntity:
+
         query_result = (
             self.session.query(GeographicalUnit)
             .where(
@@ -53,7 +70,7 @@ class GeographicalUnitRepository:
         geographical_units = [geographical_unit_model_to_entity(instance=x) for x in query_result]
         if len(geographical_units) != 1:
             raise RuntimeError(f'Expected 1 geographical unit but found {len(geographical_units)}')
-        return geographical_units[0].id
+        return geographical_units[0]
 
     def __insert_geographical_unit(self, geographical_unit: dict):
         self.session.execute(
