@@ -151,13 +151,19 @@ def sync_load_data(entity_code: GeographicalUnitCode, regulator: RegulatorType):
     while current_datetime - geographical_unit.last_valid_data_ending > datetime.timedelta(days=MAX_QUERY_DAYS):
         start_datetime = geographical_unit.last_valid_data_ending
         end_datetime = start_datetime + datetime.timedelta(days=MAX_QUERY_DAYS)
+        prev_last_valid_data_ending = geographical_unit.last_valid_data_ending
 
         fetch_and_add_new_load_data(entity_code=entity_code,
                                     regulator=regulator,
                                     start_datetime=start_datetime,
                                     end_datetime=end_datetime)
         geographical_unit = get_geographical_unit(entity_code=entity_code, regulator=regulator)
-    else:
+
+        if ((geographical_unit.last_valid_data_ending is None) or
+                (geographical_unit.last_valid_data_ending == prev_last_valid_data_ending)):
+            geographical_unit.last_valid_data_ending = end_datetime
+
+    else:  # of WHILE
         start_datetime = geographical_unit.last_valid_data_ending
         end_datetime = current_datetime
         fetch_and_add_new_load_data(entity_code=entity_code,
