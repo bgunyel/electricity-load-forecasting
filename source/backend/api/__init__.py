@@ -121,20 +121,20 @@ def fetch_and_add_new_load_data(
                                           start_datetime=start_datetime,
                                           end_datetime=end_datetime)
 
-    # Updates data_list in-place
-    _ = [
-        x.update(
-            {
-                'created_by_id': 1,
-                'updated_by_id': 1,
-                'created_at': datetime.datetime.now(datetime.timezone.utc),
-                'updated_at': datetime.datetime.now(datetime.timezone.utc),
-                'geographical_unit_id': geographical_unit.id,
-            }
-        ) for x in data_list
-    ]
-
-    add_new_load_data(load_data=data_list, geographical_unit_code=entity_code, regulator=regulator)
+    if len(data_list) > 0:
+        # Updates data_list in-place
+        _ = [
+            x.update(
+                {
+                    'created_by_id': 1,
+                    'updated_by_id': 1,
+                    'created_at': datetime.datetime.now(datetime.timezone.utc),
+                    'updated_at': datetime.datetime.now(datetime.timezone.utc),
+                    'geographical_unit_id': geographical_unit.id,
+                }
+            ) for x in data_list
+        ]
+        add_new_load_data(load_data=data_list, geographical_unit_code=entity_code, regulator=regulator)
 
 
 def sync_load_data(entity_code: GeographicalUnitCode, regulator: RegulatorType):
@@ -166,6 +166,25 @@ def sync_load_data(entity_code: GeographicalUnitCode, regulator: RegulatorType):
                                     end_datetime=end_datetime)
 
 
+def sync_all_data():
+    session = get_db_session(database_url=settings.DATABASE_URL)
+    geographical_unit_repository = GeographicalUnitRepository(session=session)
+    geographical_units = None
+
+    try:
+        geographical_units = (
+            geographical_unit_repository.get_geographical_units_of_regulator(regulator=RegulatorType.ENTSOE)
+        )
+    except RuntimeError as e:
+        print(e)
+    else:
+        session.close()
+
+    for geo_unit in geographical_units:
+        print(f'Syncing:{geo_unit.name} - {geo_unit.code.value}')
+        sync_load_data(entity_code=geo_unit.code, regulator=RegulatorType.ENTSOE)
+
+
 ################
 # API Exposure #
 ################
@@ -178,5 +197,6 @@ __all__ = [
     'add_new_load_data',
     'fetch_and_add_new_load_data',
     'update_geographical_unit',
-    'sync_load_data'
+    'sync_load_data',
+    'sync_all_data',
 ]

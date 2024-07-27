@@ -19,11 +19,22 @@ def main():
         raise RuntimeError('No GPU found!')
 
     ##
+    geographical_unit = {
+        'code': GeographicalUnitCode.FRANCE,
+        'name': 'France',
+        'type': GeographicalUnitType.COUNTRY,
+        'regulator': RegulatorType.ENTSOE,
+        'is_active': True,
+        'created_by_id': 1,
+        'updated_by_id': 1,
+        'created_at': datetime.datetime.now(datetime.timezone.utc),
+        'updated_at': datetime.datetime.now(datetime.timezone.utc),
+    }
+    add_new_geographical_unit(geographical_unit=geographical_unit)
 
     ##
 
-    sync_load_data(entity_code=GeographicalUnitCode.BELGIUM,
-                   regulator=RegulatorType.ENTSOE)
+    sync_all_data()
 
     dummy = -32
 

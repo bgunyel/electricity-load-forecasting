@@ -16,6 +16,13 @@ class RegulatorType(enum.Enum):
 class GeographicalUnitCode(enum.Enum):
     AUSTRIA = 'AT'
     BELGIUM = 'BE'
+    DENMARK = 'DK'
+    FRANCE = 'FR'
     GERMANY = 'DE'
+    ITALY = 'IT'
+    NETHERLANDS = 'NL'
+    NORWAY = 'NO'
+    SPAIN = 'ES'
+    SWEDEN = 'SE'
     SWITZERLAND = 'CH'
     TURKIYE = 'TR'

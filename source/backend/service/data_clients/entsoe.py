@@ -75,27 +75,28 @@ class ENTSOEClient:
 
         out_list = []
 
-        for ts in xml_doc.TimeSeries:
-            for period in ts.Period:
-                period_start = (
-                    datetime.datetime.fromisoformat(period.timeInterval.start.text).astimezone(
-                        datetime.timezone.utc
+        if hasattr(xml_doc, 'TimeSeries'):
+            for ts in xml_doc.TimeSeries:
+                for period in ts.Period:
+                    period_start = (
+                        datetime.datetime.fromisoformat(period.timeInterval.start.text).astimezone(
+                            datetime.timezone.utc
+                        )
                     )
-                )
-                time_resolution = self.time_resolutions[period.resolution.text]
-                points = period.Point
+                    time_resolution = self.time_resolutions[period.resolution.text]
+                    points = period.Point
 
-                for point in points:
-                    position = int(point.position)
-                    point_start = period_start + time_resolution * (position - 1)
-                    point_end = period_start + time_resolution * position
-                    point_value = int(point.quantity.text)
-                    out_list.append(
-                        {
-                            'start_datetime': point_start,
-                            'end_datetime': point_end,
-                            'value': point_value,
-                        }
-                    )
+                    for point in points:
+                        position = int(point.position)
+                        point_start = period_start + time_resolution * (position - 1)
+                        point_end = period_start + time_resolution * position
+                        point_value = int(point.quantity.text)
+                        out_list.append(
+                            {
+                                'start_datetime': point_start,
+                                'end_datetime': point_end,
+                                'value': point_value,
+                            }
+                        )
 
         return out_list

@@ -13,6 +13,17 @@ class GeographicalUnitRepository:
     def __init__(self, session: Session):
         self.session = session
 
+    def get_geographical_units_of_regulator(self, regulator: RegulatorType) -> list[GeographicalUnitEntity]:
+        query_result = (
+            self.session.query(GeographicalUnit)
+            .where(
+                GeographicalUnit.regulator.__eq__(regulator.value)
+            )
+            .order_by(GeographicalUnit.name)
+        )
+        geographical_units = [geographical_unit_model_to_entity(instance=x) for x in query_result]
+        return geographical_units
+
     def get_geographical_unit_by_id(self, geographical_unit_id: int) -> GeographicalUnitEntity:
         query_result = (
             self.session.query(GeographicalUnit)
@@ -27,6 +38,8 @@ class GeographicalUnitRepository:
 
     def add_new_geographical_unit(self, geographical_unit: dict):
         # TODO: Safety checks shall be implemented
+        geographical_unit['created_at'] = geographical_unit['created_at'].replace(microsecond=0)
+        geographical_unit['updated_at'] = geographical_unit['updated_at'].replace(microsecond=0)
         self.__insert_geographical_unit(geographical_unit=geographical_unit)
 
     def update_geographical_unit(self,
@@ -35,7 +48,7 @@ class GeographicalUnitRepository:
                                  last_valid_data_ending: datetime.datetime):
         update_dict = {
             'last_valid_data_ending': last_valid_data_ending,
-            'updated_at': datetime.datetime.now(datetime.timezone.utc),
+            'updated_at': datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0),
             'updated_by_id': 1
         }
 
