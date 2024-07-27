@@ -17,7 +17,10 @@ class GeographicalUnitRepository:
         query_result = (
             self.session.query(GeographicalUnit)
             .where(
-                GeographicalUnit.regulator.__eq__(regulator.value)
+                and_(
+                    GeographicalUnit.regulator.__eq__(regulator.value),
+                    GeographicalUnit.is_active.__eq__(True),
+                )
             )
             .order_by(GeographicalUnit.name)
         )

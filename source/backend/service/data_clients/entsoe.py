@@ -20,6 +20,7 @@ class ENTSOEClient:
             'CZ': '10YCZ-CEPS-----N',  # Czechia
             'DE': '10Y1001A1001A83F',  # Germany
             'DK': '10Y1001A1001A65H',  # Denmark
+            'EE': '10Y1001A1001A39I',  # Estonia
             'ES': '10YES-REE------0',  # Spain
             'FI': '10YFI-1--------U',  # Finland
             'FR': '10YFR-RTE------C',  # France

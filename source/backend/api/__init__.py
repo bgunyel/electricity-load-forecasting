@@ -181,7 +181,7 @@ def sync_all_data():
         session.close()
 
     for geo_unit in geographical_units:
-        print(f'Syncing:{geo_unit.name} - {geo_unit.code.value}')
+        print(f'Syncing: {geo_unit.name} - {geo_unit.code.value}')
         sync_load_data(entity_code=geo_unit.code, regulator=RegulatorType.ENTSOE)
 
 
