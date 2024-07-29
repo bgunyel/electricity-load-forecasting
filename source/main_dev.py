@@ -9,6 +9,8 @@ import polars as pl
 from config import settings, model_settings, pjm, entsoe
 from source.backend.api import *
 from source.backend.service.data_clients.entsoe import ENTSOEClient
+from backend.service.utils.get_db_session import get_db_session
+from backend.service.db.repositories.load_data_repository import LoadDataRepository
 
 
 def main():
@@ -20,6 +22,23 @@ def main():
 
     ##
     sync_all_data()
+    # sync_load_data(entity_code=GeographicalUnitCode.BOSNIA_HERZEGOVINA, regulator=RegulatorType.ENTSOE)
+
+    """
+    for geo_code in GeographicalUnitCode:
+        if geo_code in [GeographicalUnitCode.TURKIYE, GeographicalUnitCode.AUSTRIA, GeographicalUnitCode.BELGIUM]:
+            continue
+
+        update_geographical_unit(
+            code=geo_code,
+            regulator=RegulatorType.ENTSOE,
+            last_valid_data_ending=None
+        )
+    """
+
+
+
+
 
     dummy = -32
 
