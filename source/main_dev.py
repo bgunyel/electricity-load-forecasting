@@ -23,8 +23,10 @@ def main():
     ##
     # sync_all_data()
 
-    asos_client = ASOSClient()
-    stations = asos_client.get_stations_for_network(country_code='TR')
+    # asos_client = ASOSClient()
+    # stations = asos_client.get_stations_for_network(country_code='TR')
+
+    fetch_and_add_weather_stations(code=GeographicalUnitCode.TURKIYE, regulator=RegulatorType.EPIAS)
 
     dummy = -32
 

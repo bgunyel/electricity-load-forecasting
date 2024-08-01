@@ -7,7 +7,7 @@ from backend.service.db.models.base import ObjectBase
 class User(ObjectBase):
     __tablename__ = "users"
 
-    email = Column(String, nullable=False, unique=True)
+    email = Column("email", String, nullable=False, unique=True)
     is_active = Column("is_active", Boolean, nullable=False, default=True)
 
     created_by_id = Column("created_by_id", ForeignKey("users.id", ondelete="SET NULL"))
