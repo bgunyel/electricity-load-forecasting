@@ -3,11 +3,15 @@ import os
 import json
 from urllib.request import urlopen
 
+import requests
+import pandas as pd
+import io
+
 
 class ASOSClient:
     def __init__(self):
 
-        self.service_url = "http://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?"
+        self.service_url = "http://mesonet.agron.iastate.edu/cgi-bin/request/asos.py"
         self.network_url = "https://mesonet.agron.iastate.edu/geojson/network/"
 
     def get_stations_for_network(self, country_code: str, state_code: str = None):
@@ -43,3 +47,40 @@ class ASOSClient:
             stations.append(station)
 
         return stations
+
+    def get_weather_data(self, station_code: str, start_date: datetime.date, end_date: datetime.date) -> list[dict]:
+
+        params = {
+            'station': station_code,
+            'year1': str(start_date.year),
+            'month1': str(start_date.month),
+            'day1': str(start_date.day),
+            'year2': str(end_date.year),
+            'month2': str(end_date.month),
+            'day2': str(end_date.day),
+            'tz': 'UTC',
+            'data': ['tmpc', 'dwpc', 'relh', 'drct', 'sknt', 'alti', 'feel'],
+            'format': 'onlycomma',
+            'latlon': 'no',
+            'elev': 'no',
+            'missing': 'null',
+            'trace': 'T',
+            'direct': 'no',
+            'report_type': [3, 4]
+        }
+        response = requests.get(url=self.service_url, params=params)
+        df = pd.read_csv(io.StringIO(response.content.decode('utf-8')))
+        df['feel_celsius'] = (df['feel'] - 32) / 1.8  # Fahrenheit to Celsius
+        df = df.drop(columns=['station', 'feel'])
+        df = df.rename(columns={'valid': 'measured_at',
+                                'tmpc': 'temperature_celsius',
+                                'dwpc': 'dewpoint_celsius',
+                                'relh': 'relative_humidity',
+                                'drct': 'wind_direction',
+                                'sknt': 'wind_speed',
+                                'alti': 'pressure_altimeter'})
+        out_list = df.to_dict('records')
+        return out_list
+
+
+

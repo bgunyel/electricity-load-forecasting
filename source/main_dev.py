@@ -23,10 +23,13 @@ def main():
     ##
     # sync_all_data()
 
-    # asos_client = ASOSClient()
+    asos_client = ASOSClient()
     # stations = asos_client.get_stations_for_network(country_code='TR')
+    asos_client.get_weather_data(station_code='LTAC',
+                                 start_date=datetime.date(year=2024, month=8, day=1),
+                                 end_date=datetime.date(year=2024, month=8, day=2))
 
-    fetch_and_add_weather_stations(code=GeographicalUnitCode.TURKIYE, regulator=RegulatorType.EPIAS)
+    # fetch_and_add_weather_stations(code=GeographicalUnitCode.TURKIYE, regulator=RegulatorType.EPIAS)
 
     dummy = -32
 
