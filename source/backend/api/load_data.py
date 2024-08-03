@@ -19,10 +19,11 @@ def add_new_load_data(
         load_data_repository.add_new_load_data(load_data=load_data)
     except RuntimeError as e:
         print(e)
-    else:
+    finally:
         session.close()
 
-    last_valid_data_ending = load_data[-1]['end_datetime']  # data points must be ordered
+    last_valid_data_ending = max(load_data, key=lambda x: x['end_datetime'])['end_datetime']
+    # last_valid_data_ending = load_data[-1]['end_datetime']  # data points must be ordered
     update_geographical_unit(code=geographical_unit_code,
                              regulator=regulator,
                              last_valid_data_ending=last_valid_data_ending)

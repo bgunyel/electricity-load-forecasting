@@ -29,6 +29,8 @@ def add_new_geographical_unit(geographical_unit: dict):
     except RuntimeError as e:
         print(e)
     else:
+        print(f'Successfully added: {geographical_unit}')
+    finally:
         session.close()
 
 
@@ -45,6 +47,8 @@ def update_geographical_unit(
     except RuntimeError as e:
         print(e)
     else:
+        print(f'Successfully updated: {code.value} - {regulator.value} with {last_valid_data_ending}')
+    finally:
         session.close()
 
 
@@ -58,7 +62,7 @@ def get_geographical_unit(entity_code: GeographicalUnitCode, regulator: Regulato
                                                                                          regulator=regulator)
     except RuntimeError as e:
         print(e)
-    else:
+    finally:
         session.close()
 
     return geographical_unit

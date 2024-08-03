@@ -46,3 +46,27 @@ class WeatherRepository:
             ) for x in weather_data
         ]
         self.__insert_weather_data(weather_data=weather_data)
+
+    def get_weather_stations_from_geo_code_id(self, geo_unit_id: int) -> list[WeatherStationEntity]:
+        query_result = (
+            self.session.query(WeatherStation)
+            .where(
+                and_(
+                    WeatherStation.geographical_unit_id.__eq__(geo_unit_id),
+                    WeatherStation.is_active.__eq__(True),
+                )
+            )
+            .order_by(WeatherStation.name)
+        )
+        stations = [weather_station_model_to_entity(instance=x) for x in query_result]
+        return stations
+
+    def update_weather_station(self, id: int, update_dict: dict):
+        self.session.execute(
+            update(WeatherStation)
+            .where(
+                WeatherStation.id.__eq__(id)
+            )
+            .values(update_dict)
+        )
+        self.session.commit()

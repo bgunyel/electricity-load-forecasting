@@ -23,11 +23,11 @@ class WeatherData(ObjectTimestamps):
     updated_by_id = Column("updated_by_id", ForeignKey("users.id", ondelete="SET NULL"))
 
     created_by = relationship(
-        "User", remote_side="User.id", primaryjoin="LoadData.created_by_id == User.id"
+        "User", remote_side="User.id", primaryjoin="WeatherData.created_by_id == User.id"
     )
 
     updated_by = relationship(
-        "User", remote_side="User.id", primaryjoin="LoadData.updated_by_id == User.id"
+        "User", remote_side="User.id", primaryjoin="WeatherData.updated_by_id == User.id"
     )
 
     station = relationship(
