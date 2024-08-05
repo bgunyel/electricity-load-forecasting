@@ -83,69 +83,87 @@ def add_new_weather_data(weather_data: list[dict], station_id: int):
         session.close()
 
 
-def fetch_and_add_new_weather_data(
-        geo_unit_code: GeographicalUnitCode,
-        regulator: RegulatorType,
+def fetch_weather_data(
+        station_code: str,
+        station_id: int,
         start_date: datetime.date,
         end_date: datetime.date
 ):
-    """
-    * Get geo_unit id from geo_unit_code and regulator (via GeographicalUnitRepository)
-    * Get the list of weather stations registered to the geo_unit id
-
-    * for each station:
-        * get weather data between the specified dates
-        * do cleaning if there is more data than requested
-        * save weather data to database with the specified station id
-        * update last_valid_data_ending of the station
-
-    """
     asos_client = ASOSClient()
-    stations = get_stations_of_geographical_unit(geo_unit_code=geo_unit_code, regulator=regulator)  # active stations
+    data_list = asos_client.get_weather_data(station_code=station_code,
+                                             start_date=start_date,
+                                             end_date=end_date)
+
+    if len(data_list) > 0:
+        # Updates data_list in-place
+        _ = [
+            x.update(
+                {
+                    'measured_at': datetime.datetime.fromisoformat(x['measured_at']).replace(tzinfo=datetime.timezone.utc),
+                    'created_by_id': 1,
+                    'updated_by_id': 1,
+                    'created_at': datetime.datetime.now(datetime.timezone.utc),
+                    'updated_at': datetime.datetime.now(datetime.timezone.utc),
+                    'station_id': station_id,
+                }
+            ) for x in data_list
+        ]
+
+    return data_list
+
+
+def sync_weather_data_for_station(station: WeatherStationEntity):
+    print(f'Station: {station.code} - {station.name}')
+    MAX_QUERY_DAYS = 180
+    ABSOLUTE_BEGINNING = datetime.date(year=2015, month=1, day=1)
 
     session = get_db_session(database_url=settings.DATABASE_URL)
     weather_repository = WeatherRepository(session=session)
 
+    start_date = max(
+        ABSOLUTE_BEGINNING if station.archive_begin is None else station.archive_begin,
+        ABSOLUTE_BEGINNING if station.last_valid_data_ending is None else station.last_valid_data_ending.date()
+    )
+    end_date = datetime.date.today() + datetime.timedelta(days=1)  # give tomorrow's date in order to get today's data
+
+    weather_data_list = fetch_weather_data(station_code=station.code,
+                                           station_id=station.id,
+                                           start_date=start_date,
+                                           end_date=end_date)
     try:
-        for station in stations:
+        if len(weather_data_list) > 0:
+            if station.last_valid_data_ending is not None:
+                weather_data_list = [x for x in weather_data_list if x['measured_at'] > station.last_valid_data_ending]
 
-            if end_date >= station.archive_begin:
-                data_list = asos_client.get_weather_data(station_code=station.code,
-                                                         start_date=max(start_date, station.archive_begin),
-                                                         end_date=end_date)
-                last_valid_data_ending = station.last_valid_data_ending
-
-                if len(data_list) > 0:
-
-                    # Updates data_list in-place (update has to be first because of 'measured_at' change)
-                    _ = [
-                        x.update(
-                            {
-                                'measured_at': datetime.datetime.fromisoformat(x['measured_at']),
-                                'created_by_id': 1,
-                                'updated_by_id': 1,
-                                'created_at': datetime.datetime.now(datetime.timezone.utc),
-                                'updated_at': datetime.datetime.now(datetime.timezone.utc),
-                                'station_id': station.id,
-                            }
-                        ) for x in data_list
-                    ]
-
-                    if last_valid_data_ending is not None:
-                        data_list = [x for x in data_list if
-                                     x['measured_at'] > last_valid_data_ending]  # strict greater
-
-                    max_data_ending = max(data_list, key=lambda x: x['measured_at'])['measured_at']
-
-                    weather_repository.add_new_weather_data(weather_data=data_list)
-                    station_update_dict = {'last_valid_data_ending': max_data_ending,
-                                           'updated_at': datetime.datetime.now(datetime.timezone.utc),
-                                           'updated_by_id': 1}
-                    weather_repository.update_weather_station(id=station.id, update_dict=station_update_dict)
-
+            if len(weather_data_list) > 0:
+                max_data_ending = max(weather_data_list, key=lambda x: x['measured_at'])['measured_at']
+                weather_repository.add_new_weather_data(weather_data=weather_data_list)
+                weather_repository.update_weather_station(
+                    id=station.id,
+                    update_dict={'last_valid_data_ending': max_data_ending,
+                                 'updated_at': datetime.datetime.now(datetime.timezone.utc),
+                                 'updated_by_id': 1}
+                )
+        """
+        elif (
+                (station.last_valid_data_ending is None) or
+                (end_date - station.last_valid_data_ending.date() > datetime.timedelta(days=MAX_QUERY_DAYS))
+        ):
+            weather_repository.update_weather_station(
+                id=station.id,
+                update_dict={'is_active': False,
+                             'updated_at': datetime.datetime.now(datetime.timezone.utc),
+                             'updated_by_id': 1}
+            )
+        """
     except RuntimeError as e:
         print(e)
     finally:
         session.close()
 
-        dummy = -32
+
+def sync_weather_data(geo_unit_code: GeographicalUnitCode, regulator: RegulatorType):
+    active_stations = get_stations_of_geographical_unit(geo_unit_code=geo_unit_code, regulator=regulator)
+
+    for station in active_stations:
+        sync_weather_data_for_station(station=station)

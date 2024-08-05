@@ -5,7 +5,7 @@ from backend.service.utils.get_db_session import get_db_session
 from config import settings
 from .geo_unit import add_new_geographical_unit, update_geographical_unit, get_geographical_unit
 from .load_data import add_new_load_data, fetch_and_add_new_load_data, sync_load_data
-from .weather import fetch_and_add_weather_stations, fetch_and_add_new_weather_data
+from .weather import fetch_and_add_weather_stations, sync_weather_data
 
 
 def add_new_user(user: dict):
@@ -52,11 +52,8 @@ __all__ = [
     'RegulatorType',
     'add_new_user',
     'add_new_geographical_unit',
-    'add_new_load_data',
-    'fetch_and_add_new_load_data',
     'fetch_and_add_weather_stations',
-    'fetch_and_add_new_weather_data',
-    'update_geographical_unit',
     'sync_load_data',
+    'sync_weather_data',
     'sync_all_data',
 ]
