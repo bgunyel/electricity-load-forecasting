@@ -26,8 +26,8 @@ def main():
     """
 
 
-    # sync_all_data()
-    sync_weather_data(geo_unit_code=GeographicalUnitCode.NETHERLANDS, regulator=RegulatorType.ENTSOE)
+    sync_all_data()
+    # sync_weather_data(geo_unit_code=GeographicalUnitCode.DENMARK, regulator=RegulatorType.ENTSOE)
 
 
     # fetch_and_add_weather_stations(code=GeographicalUnitCode.SWITZERLAND, regulator=RegulatorType.ENTSOE)

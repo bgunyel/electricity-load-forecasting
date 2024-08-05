@@ -38,9 +38,11 @@ def sync_all_data():
     finally:
         session.close()
 
+    sync_weather_data(geo_unit_code=GeographicalUnitCode.TURKIYE, regulator=RegulatorType.EPIAS)
     for g_unit in geographical_units:
         print(f'Syncing: {g_unit.name} - {g_unit.code.value}')
         sync_load_data(entity_code=g_unit.code, regulator=RegulatorType.ENTSOE)
+        sync_weather_data(geo_unit_code=g_unit.code, regulator=RegulatorType.ENTSOE)
 
 
 ################
