@@ -1,11 +1,13 @@
 import datetime
 import os
+import io
 import json
 from urllib.request import urlopen
 
 import requests
 import pandas as pd
-import io
+import numpy as np
+
 
 
 class ASOSClient:
@@ -70,8 +72,14 @@ class ASOSClient:
         }
         response = requests.get(url=self.service_url, params=params)
         df = pd.read_csv(io.StringIO(response.content.decode('utf-8')))
-        df['feel_celsius'] = (df['feel'] - 32) / 1.8  # Fahrenheit to Celsius
-        df = df.drop(columns=['station', 'feel'])
+
+        if 'feel' in df.columns:
+            df['feel_celsius'] = (df['feel'] - 32) / 1.8  # Fahrenheit to Celsius
+            df = df.drop(columns=['feel'])
+        else:
+            df['feel_celsius'] = np.nan
+
+        df = df.drop(columns=['station'])
         df = df.rename(columns={'valid': 'measured_at',
                                 'tmpc': 'temperature_celsius',
                                 'dwpc': 'dewpoint_celsius',

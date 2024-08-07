@@ -1,7 +1,8 @@
 import datetime
 
 from sqlalchemy.orm import Session
-from sqlalchemy import insert, update, and_, or_
+from sqlalchemy import insert, update, and_
+from sqlalchemy.exc import DBAPIError
 
 from backend.service.db.models.weather_station import WeatherStation
 from backend.service.db.models.weather_data import WeatherData
@@ -21,17 +22,27 @@ class WeatherRepository:
         self.session.commit()
 
     def __insert_weather_data(self, weather_data: [dict, list[dict]]):
-        self.session.execute(
-            insert(WeatherData),
-            weather_data
-        )
-        self.session.commit()
+        try:
+            self.session.execute(
+                insert(WeatherData),
+                weather_data
+            )
+        except DBAPIError as e:
+            self.session.rollback()
+            raise e
+        else:
+            self.session.commit()
 
     def add_new_weather_stations(self, weather_stations: list[dict]):
         for station in weather_stations:
             station['created_at'] = station['created_at'].replace(microsecond=0)
             station['updated_at'] = station['updated_at'].replace(microsecond=0)
-        self.__insert_weather_station(weather_stations=weather_stations)
+
+        try:
+            self.__insert_weather_station(weather_stations=weather_stations)
+        except DBAPIError as e:
+            print(f'DBAPIError: {e}')
+            raise e
 
     def add_new_weather_data(self, weather_data: list[dict]):
         # TODO: Safety checks shall be implemented
@@ -45,7 +56,12 @@ class WeatherRepository:
                 }
             ) for x in weather_data
         ]
-        self.__insert_weather_data(weather_data=weather_data)
+
+        try:
+            self.__insert_weather_data(weather_data=weather_data)
+        except DBAPIError as e:
+            print(f'DBAPIError: {e}')
+            raise e
 
     def get_weather_stations_from_geo_code_id(self, geo_unit_id: int) -> list[WeatherStationEntity]:
         query_result = (

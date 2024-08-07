@@ -1,4 +1,5 @@
 import datetime
+from sqlalchemy.exc import DBAPIError
 
 from config import settings
 from .geo_unit import add_new_geographical_unit, update_geographical_unit, get_geographical_unit
@@ -137,7 +138,15 @@ def sync_weather_data_for_station(station: WeatherStationEntity):
 
             if len(weather_data_list) > 0:
                 max_data_ending = max(weather_data_list, key=lambda x: x['measured_at'])['measured_at']
-                weather_repository.add_new_weather_data(weather_data=weather_data_list)
+                try:
+                    weather_repository.add_new_weather_data(weather_data=weather_data_list)
+                except DBAPIError as e:
+                    print(f'DBAPIError: {e}')
+                    raise e
+
+                #  TODO:
+                #  Exception during station update should be handled more cleverly
+                #  In that case, we have new data inserted, but failed to update the corresponding station
                 weather_repository.update_weather_station(
                     id=station.id,
                     update_dict={'last_valid_data_ending': max_data_ending,
@@ -166,4 +175,8 @@ def sync_weather_data(geo_unit_code: GeographicalUnitCode, regulator: RegulatorT
     active_stations = get_stations_of_geographical_unit(geo_unit_code=geo_unit_code, regulator=regulator)
 
     for station in active_stations:
-        sync_weather_data_for_station(station=station)
+        try:
+            sync_weather_data_for_station(station=station)
+        except DBAPIError as e:
+            print(f'DBAPIError: {e} with station {station.code}')
+            continue  # Continue with the next station
