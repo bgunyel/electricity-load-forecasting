@@ -1,16 +1,10 @@
-import os
-import time
 import datetime
+import time
 
 import torch
-import pandas as pd
-import polars as pl
 
-from config import settings, model_settings, pjm, entsoe
+from config import settings
 from source.backend.api import *
-from source.backend.service.data_clients.entsoe import ENTSOEClient
-from backend.service.utils.get_db_session import get_db_session
-from backend.service.db.repositories.load_data_repository import LoadDataRepository
 
 
 def main():
@@ -21,8 +15,24 @@ def main():
         raise RuntimeError('No GPU found!')
 
     ##
+
+
+    """
+    asos_client = ASOSClient()
+    data_list = asos_client.get_weather_data(station_code='LTAC',
+                                             start_date=datetime.date(year=2015, month=1, day=1),
+                                             end_date=datetime.date(year=2024, month=8, day=4))
+
+    """
+
+
     sync_all_data()
-    # sync_load_data(entity_code=GeographicalUnitCode.BOSNIA_HERZEGOVINA, regulator=RegulatorType.ENTSOE)
+    # sync_weather_data(geo_unit_code=GeographicalUnitCode.DENMARK, regulator=RegulatorType.ENTSOE)
+
+
+    # fetch_and_add_weather_stations(code=GeographicalUnitCode.SWITZERLAND, regulator=RegulatorType.ENTSOE)
+
+    dummy = -32
 
     """
     for geo_code in GeographicalUnitCode:
@@ -35,10 +45,6 @@ def main():
             last_valid_data_ending=None
         )
     """
-
-
-
-
 
     dummy = -32
 

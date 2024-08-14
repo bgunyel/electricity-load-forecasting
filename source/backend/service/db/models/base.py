@@ -21,5 +21,5 @@ class ObjectTimestamps(Base):
 class ObjectBase(ObjectTimestamps):
     __abstract__ = True
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
+    id = Column("id", Integer, primary_key=True)
+    name = Column("name", String, nullable=False)
